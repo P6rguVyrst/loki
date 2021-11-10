@@ -211,11 +211,11 @@ func (m *memStoreQuerier) Select(sortSeries bool, params *storage.SelectHints, m
 
 	// should not happen
 	if rule == nil {
-		level.Error(m.logger).Log("msg", "failure trying to restore for state for untracked alerting rule", "name", ruleKey, "labelset", ls)
+		level.Error(m.logger).Log("msg", "failure trying to restore for state for untracked alerting rule", "name", ruleKey)
 		return storage.NoopSeriesSet()
 	}
 
-	level.Info(m.logger).Log("msg", "restoring for state via evaluation", "rule", ruleKey, "labelset", ls)
+	level.Info(m.logger).Log("msg", "restoring for state via evaluation", "rule", ruleKey)
 
 	m.mtx.Lock()
 	defer m.mtx.Unlock()
@@ -230,7 +230,7 @@ func (m *memStoreQuerier) Select(sortSeries bool, params *storage.SelectHints, m
 	smpl, cached := cache.Get(m.ts, ls)
 	if cached {
 		m.metrics.cacheHits.WithLabelValues(m.userID).Inc()
-		level.Debug(m.logger).Log("msg", "result cached", "rule", ruleKey, "labelset", ls)
+		level.Debug(m.logger).Log("msg", "result cached", "rule", ruleKey)
 		// Assuming the result is cached but the desired series is not in the result, it wouldn't be considered active.
 		if smpl == nil {
 			return storage.NoopSeriesSet()
@@ -251,12 +251,12 @@ func (m *memStoreQuerier) Select(sortSeries bool, params *storage.SelectHints, m
 	checkTime := m.ts.Add(-rule.HoldDuration())
 	vec, err := m.queryFunc(m.ctx, rule.Query().String(), checkTime)
 	if err != nil {
-		level.Info(m.logger).Log("msg", "error querying for rule", "rule", ruleKey, "err", err.Error(), "labelset", ls)
+		level.Info(m.logger).Log("msg", "error querying for rule", "rule", ruleKey, "err", err.Error())
 		m.metrics.evaluations.WithLabelValues(statusFailure, m.userID).Inc()
 		return storage.NoopSeriesSet()
 	}
 	m.metrics.evaluations.WithLabelValues(statusSuccess, m.userID).Inc()
-	level.Info(m.logger).Log("msg", "rule state successfully restored", "rule", ruleKey, "len", len(vec), "labelset", ls)
+	level.Info(m.logger).Log("msg", "rule state successfully restored", "rule", ruleKey, "len", len(vec))
 
 	// translate the result into the ALERTS_FOR_STATE series for caching,
 	// considered active & written at the timetamp requested
