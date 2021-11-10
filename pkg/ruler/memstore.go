@@ -215,7 +215,7 @@ func (m *memStoreQuerier) Select(sortSeries bool, params *storage.SelectHints, m
 		return storage.NoopSeriesSet()
 	}
 
-	level.Debug(m.logger).Log("msg", "restoring for state via evaluation", "rule", ruleKey)
+	level.Info(m.logger).Log("msg", "restoring for state via evaluation", "rule", ruleKey)
 
 	m.mtx.Lock()
 	defer m.mtx.Unlock()
@@ -256,7 +256,7 @@ func (m *memStoreQuerier) Select(sortSeries bool, params *storage.SelectHints, m
 		return storage.NoopSeriesSet()
 	}
 	m.metrics.evaluations.WithLabelValues(statusSuccess, m.userID).Inc()
-	level.Debug(m.logger).Log("msg", "rule state successfully restored", "rule", ruleKey, "len", len(vec))
+	level.Info(m.logger).Log("msg", "rule state successfully restored", "rule", ruleKey, "len", len(vec))
 
 	// translate the result into the ALERTS_FOR_STATE series for caching,
 	// considered active & written at the timetamp requested
